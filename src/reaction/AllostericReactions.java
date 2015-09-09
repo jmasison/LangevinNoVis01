@@ -1,0 +1,116 @@
+/*
+ * Model this class on the transition reaction class.  Here we can use a 
+ * gmolecule id (as string) and site number to map to an allostericreaction, 
+ * and then get the states, rate, etc from that allostericreaction reaction.
+ * 
+ * The key is always gmoleculeID + gsiteIndex (both as strings).
+ */
+
+
+package reaction;
+
+import object.Bond;
+import object.Site;
+import object.Molecule;
+import g.object.GSite;
+import g.object.GMolecule;
+import g.object.GState;
+import g.reaction.GAllostericReaction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import helpernovis.Rand;
+import langevinnovis01.Global;
+
+public class AllostericReactions {
+
+    // Check to see if we even have a reaction. As many states won't have a
+    // this check should be faster than calling ArrayList.isEmpty. 
+    private final HashMap<String, Boolean> hasReaction;
+    
+    private final HashMap<String, ArrayList<GAllostericReaction>> reactionMap;
+    
+    private final double dt;
+    
+    private final BindingReactions bindingReactions;
+    
+    public AllostericReactions(Global g, BindingReactions bindingReactions){
+        ArrayList<GAllostericReaction> reactions = g.getAllostericReactions();
+        ArrayList<GSite> allSites = new ArrayList<>();
+        this.dt = g.getdt();
+        this.bindingReactions = bindingReactions;
+        
+        for(GMolecule gmolecule: g.getMolecules()){
+            for(GSite gsite : gmolecule.getSites()){
+                allSites.add(gsite);
+            }
+        }
+        
+        hasReaction = new HashMap<>(10*allSites.size());
+        reactionMap = new HashMap<>(10*allSites.size());
+        
+        // Populate maps with arraylists and set reaction flags to false
+        for(GMolecule gmolecule : g.getMolecules()){
+            String gmolID = Integer.toString(gmolecule.getID());
+            for(GSite gsite : gmolecule.getSites()){
+                String siteIndex = Integer.toString(gsite.getIndex());
+                String key = gmolID + siteIndex;
+                hasReaction.put(key, Boolean.FALSE);
+                reactionMap.put(key, new ArrayList<>());
+            }
+        }
+        
+        // Now populate the maps based on the allosteric reactions
+        for(GAllostericReaction reaction : reactions){
+            String molID = Integer.toString(reaction.getGMolecule().getID());
+            String siteIndex = Integer.toString(reaction.getGSite().getIndex());
+            String key = molID + siteIndex;
+            hasReaction.put(key, Boolean.TRUE);
+            ArrayList<GAllostericReaction> rxnList = reactionMap.get(key);
+            rxnList.add(reaction);
+        }
+    }
+    
+    public void tryReactions(Site site){
+        Molecule molecule = site.getMolecule();
+        String molID = Integer.toString(molecule.getGID());
+        String siteIndex = Integer.toString(site.getGSiteIndex());
+        String key = molID + siteIndex;
+        if(hasReaction.get(key)){
+            ArrayList<GAllostericReaction> reactions = reactionMap.get(key);
+            // Now loop through the reactions
+            for(GAllostericReaction reaction : reactions){
+                
+                if(site.getState() == reaction.getInitialState()){
+                    int allostericSiteIndex = reaction.getAllostericSite().getIndex();
+                    Site allostericSite = molecule.getSiteFromGSiteIndex(allostericSiteIndex);
+                    GState currentState = allostericSite.getState();
+                    GState allostericState = reaction.getAllostericState();
+                    
+                    if(currentState == allostericState){
+                        if(reactionOccurs(reaction.getRate())){
+                            site.setState(reaction.getFinalState());
+                            if(site.isBound()){
+                                updateBondType(site);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private boolean reactionOccurs(double rate){
+        return Rand.randomPosDouble() < dt*rate;
+    }
+    
+    private void updateBondType(Site site){
+        String id = Integer.toString(site.getState().getID());
+        String partnerID = Integer.toString(site.getBindingPartner().getState().getID());
+        Bond bond = site.getBond();
+        bond.setReactionName(bindingReactions.getName(id, partnerID));
+        bond.setOffProbability(bindingReactions.getOffProb(id, partnerID));
+        bond.setBondLength(bindingReactions.getBondLength(id, partnerID));
+    }
+    
+}
