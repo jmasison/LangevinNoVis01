@@ -27,7 +27,16 @@ public class Molecule {
     
     // The cluster index
     private long clusterIndex = -1;
-    private final ArrayList<Molecule> bindingPartners = new ArrayList<>();
+    // I used to keep track of the bindingPartners by updating this 
+    // ArrayList as bonds were created and destroyed, but I ran into problems
+    // because I was removing binding partners each time a bond was broken, 
+    // even if the two molecules were bound together at another site.  I only
+    // use this arraylist in the ClusterCounter class, so it's not accessed
+    // too frequently.  It makes more sense to just build up the array each
+    // time I need it.  Otherwise I'd end up looping over other sites 
+    // every time a bond dissociated, and that seems like unnecessary work. 
+    
+    // private final ArrayList<Molecule> bindingPartners = new ArrayList<>();
     
     // The "sites" array gets shuffled after creation, and this was causing
     // problems in the allosteric reactions because they look for a specific
@@ -95,7 +104,19 @@ public class Molecule {
         return clusterIndex;
     }
     
+    // Only return unique binding partners. Will return itself if bound
+    // to itself. 
     public ArrayList<Molecule> getBindingPartners(){
+        ArrayList<Molecule> bindingPartners = new ArrayList<>();
+        for(Site s : sites){
+            Site otherSite = s.getBindingPartner();
+            if(otherSite != null){
+                Molecule mol = otherSite.getMolecule();
+                if(!bindingPartners.contains(mol)){
+                    bindingPartners.add(mol);
+                }
+            }
+        }
         return bindingPartners;
     }
     
@@ -114,15 +135,15 @@ public class Molecule {
         this.links.add(link);
     }
     
-    public void addBindingPartner(Molecule molecule){
-        if(!bindingPartners.contains(molecule)){
-            bindingPartners.add(molecule);
-        }
-    }
-    
-    public void removeBindingPartner(Molecule molecule){
-        bindingPartners.remove(molecule);
-    }
+//    public void addBindingPartner(Molecule molecule){
+//        if(!bindingPartners.contains(molecule)){
+//            bindingPartners.add(molecule);
+//        }
+//    }
+//    
+//    public void removeBindingPartner(Molecule molecule){
+//        bindingPartners.remove(molecule);
+//    }
     
     public void plusBond(){
         bondNumber++;

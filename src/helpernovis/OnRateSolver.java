@@ -317,7 +317,9 @@ public class OnRateSolver {
 //            System.out.println(g(0.5,0.6+i,5,1,0.005));
 //        }
         
-        double lambda = OnRateSolver.getrootReversible(0.5, 2, 5, 2.0*1000000.0, 5*1660000.0);
+        // double lambda = OnRateSolver.getrootReversible(0.2, 1.2, 1.2, 20.0*1000000.0, 1000*1660000.0);
+        double lambda = OnRateSolver.getrootReversible(0.2, 1.2, 1.2, 20.0*1000000.0, 1000*1660000.0);
         System.out.println(lambda);
+        
     }
 }

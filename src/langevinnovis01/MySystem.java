@@ -515,8 +515,8 @@ public class MySystem {
                                 tempSite.setBond(newBond);
                                 Molecule m0 = site.getMolecule();
                                 Molecule m1 = tempSite.getMolecule();
-                                m0.addBindingPartner(m1);
-                                m1.addBindingPartner(m0);
+//                                m0.addBindingPartner(m1);
+//                                m1.addBindingPartner(m0);
                                 if(!m0.isBound()){
                                     removeFreeMolecule(m0);
                                 }
@@ -950,8 +950,16 @@ public class MySystem {
                 bsite[1].setBond(null);
                 Molecule m0 = bsite[0].getMolecule();
                 Molecule m1 = bsite[1].getMolecule();
-                m0.removeBindingPartner(m1);
-                m1.removeBindingPartner(m0);
+                // This part of the code was wrong.  It was removing m0 as a 
+                // binding partner of m1, and vice versa, even if they were
+                // still bound at another site.  This was messing up my 
+                // clustering code, and probably was introducing other errors
+                // I wasn't aware of.  The right way to fix this is to keep
+                // track of the multiplicity of each binding partner. I decided
+                // to fix it by getting rid of the binding partner array and 
+                // just generating it each time I need to count clusters.  
+//                m0.removeBindingPartner(m1);
+//                m1.removeBindingPartner(m0);
                 m0.minusBond();
                 if(!m0.isBound()){
                     addFreeMolecule(m0);
