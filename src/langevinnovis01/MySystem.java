@@ -130,6 +130,7 @@ public class MySystem {
         // <editor-fold defaultstate="collapsed" desc="Method Code">  
         Rand.seedRand(System.currentTimeMillis());
         rand = new Random(System.currentTimeMillis());
+        System.out.println("in solver, running: " + runCounter);
         
         this.g = g;
         this.runCounter = Integer.parseInt(runCounter);
