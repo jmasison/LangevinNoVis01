@@ -104,9 +104,17 @@ public class GBindingReaction {
         double D = 1000000.0 * (type[0].getD() + type[1].getD());
         // When a site reacts its own type, the rate should be rescaled to 2*kon
         if(type[0] != type[1]){
-            lambda = OnRateSolver.getrootReversible(p, p+bondLength, R, D, rescalekon);
+        	if(koff == 0) {
+        		lambda = OnRateSolver.getrootIrreversible(p, R, D, rescalekon);
+        	} else {
+        		lambda = OnRateSolver.getrootReversible(p, p+bondLength, R, D, rescalekon);
+        	}
         } else {
-            lambda = OnRateSolver.getrootReversible(p, p+bondLength, R, D, 2*rescalekon);
+        	if(koff == 0) {
+        		lambda = OnRateSolver.getrootIrreversible(p, R, D, 2*rescalekon);
+        	} else {
+        		lambda = OnRateSolver.getrootReversible(p, p+bondLength, R, D, 2*rescalekon);
+        	}
         }
         // System.out.println("Called setLambda.  Lambda = " + lambda);
         
