@@ -1,8 +1,8 @@
-name: GraalVM Native Image builds
+name: GraalVM Native Image build
 on: [push, pull_request]
 jobs:
   build:
-    name: HelloWorld on ${{ matrix.os }}
+    name: Langevin on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -21,8 +21,8 @@ jobs:
         run: mvn -Pnative package
 
       - name: Upload binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: langevin-${{ matrix.os }}
-          path: langevin*
+          path: target/langevin*
 
