@@ -1,0 +1,28 @@
+name: GraalVM Native Image build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Langevin on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+        run: mvn -Pnative package
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: langevin-${{ matrix.os }}
+          path: target/langevin*
+
