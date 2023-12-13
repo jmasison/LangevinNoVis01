@@ -34,3 +34,7 @@ jobs:
           asset_path: target/langevin*
           asset_name: langevin-${{ matrix.os }}
           asset_content_type: application/octet-stream
+          
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ failure() }}
