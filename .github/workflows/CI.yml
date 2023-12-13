@@ -1,5 +1,5 @@
-name: CI/CD
-on: [push, pull_request, release]
+name: CI
+on: [push, pull_request]
 jobs:
   CI-Build:
     name: Langevin on ${{ matrix.os }}
@@ -20,22 +20,8 @@ jobs:
       - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
         run: mvn -Pnative package
 
-      - name: Upload ${{ matrix.os }} solver binary to action assets
+      - name: Upload ${{ matrix.os }} solver binary
         uses: actions/upload-artifact@v3
         with:
           name: langevin-${{ matrix.os }}
           path: target/langevin*
-
-      - name: Upload macos solver binary to release assets
-        # on release for macos
-        if: github.event_name == 'release' && matrix.os == 'macos-latest'
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./target/langevin
-          asset_name: langevin-${{ matrix.os }}
-          asset_content_type: application/octet-stream
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ failure() }}
