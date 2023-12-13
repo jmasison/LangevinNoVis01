@@ -1,7 +1,7 @@
-name: GraalVM Native Image build
+name: CI
 on: [push, pull_request]
 jobs:
-  build:
+  CI-Build:
     name: Langevin on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -17,12 +17,11 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
 
-      - name: Example step using Maven plugin  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+      - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
         run: mvn -Pnative package
 
-      - name: Upload binary
+      - name: Upload ${{ matrix.os }} solver binary
         uses: actions/upload-artifact@v3
         with:
           name: langevin-${{ matrix.os }}
           path: target/langevin*
-
