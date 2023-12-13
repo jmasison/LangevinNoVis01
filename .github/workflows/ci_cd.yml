@@ -1,0 +1,36 @@
+name: CI/CD
+on: [push, pull_request, release]
+jobs:
+  CI-Build:
+    name: Langevin on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          native-image-job-reports: 'true'
+
+      - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+        run: mvn -Pnative package
+
+      - name: Upload ${{ matrix.os }} solver binary to action assets
+        uses: actions/upload-artifact@v3
+        with:
+          name: langevin-${{ matrix.os }}
+          path: target/langevin*
+
+      - name: Upload ${{ matrix.os }} solver binary to release assets
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: target/langevin*
+          asset_name: langevin-${{ matrix.os }}
+          asset_content_type: application/octet-stream
