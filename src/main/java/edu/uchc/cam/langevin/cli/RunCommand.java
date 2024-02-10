@@ -26,7 +26,6 @@ public class RunCommand implements Callable<Integer> {
                 broker_port=8165
                 broker_username=msg_user
                 broker_password=msg_pswd
-                compute_hostname=localhost
                 vc_username=vcell_user
                 simKey=12334483837
                 taskID=0
