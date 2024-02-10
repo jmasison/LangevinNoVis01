@@ -189,11 +189,7 @@ public class GMolecule {
     public void setAllInitialPositions(String [] xs, String [] ys, String [] zs){
         // <editor-fold defaultstate="collapsed" desc="Method Code">
         if(xs.length != ys.length || ys.length != zs.length){
-            System.out.println("Given unequal number of x,y,z initial positions.");
-            System.out.println("Given " + xs.length + " x ICs.");
-            System.out.println("Given " + ys.length + " y ICs.");
-            System.out.println("Given " + zs.length + " z ICs.");
-            System.exit(1);
+            throw new RuntimeException("Unequal number of x,y,z initial positions, xs="+xs.length+", ys="+ys.length+", zs="+zs.length);
         } else {
             try{
                 for(int i=0;i<xs.length;i++){
@@ -202,9 +198,7 @@ public class GMolecule {
                     zIC.add(Double.parseDouble(zs[i]));
                 }
             } catch(NumberFormatException nfe){
-                System.out.println("Could not interpret all initial conditions"
-                        + " as doubles.");
-                System.exit(1);
+                throw new RuntimeException("Could not interpret all initial conditions as doubles.", nfe);
             }
         }
         // </editor-fold>

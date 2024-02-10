@@ -17,6 +17,8 @@ import edu.uchc.cam.langevin.object.*;
 import edu.uchc.cam.langevin.reaction.AllostericReactions;
 import edu.uchc.cam.langevin.reaction.BindingReactions;
 import edu.uchc.cam.langevin.reaction.TransitionReactions;
+import org.vcell.messaging.VCellMessaging;
+import org.vcell.messaging.WorkerEvent;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -118,6 +120,8 @@ public class MySystem {
     private long startTime;
     private long stopTime;
 
+    private final VCellMessaging vcellMessaging;
+
     
     /**********************************************************************\
      *                         CONSTRUCTOR                                *
@@ -129,7 +133,7 @@ public class MySystem {
      * @param useOutputFile
     \**********************************************************************/
     
-    public MySystem(Global g, int runCounter, boolean useOutputFile){
+    public MySystem(Global g, int runCounter, boolean useOutputFile, VCellMessaging vcellMessaging){
         // <editor-fold defaultstate="collapsed" desc="Method Code">  
         Rand.seedRand(System.currentTimeMillis());
         rand = new Random(System.currentTimeMillis());
@@ -138,6 +142,9 @@ public class MySystem {
         this.g = g;
         this.runCounter = runCounter;
         this.useOutputFile = useOutputFile;
+        this.vcellMessaging = vcellMessaging;
+
+        vcellMessaging.sendWorkerEvent(WorkerEvent.startingEvent("Starting Simulation"));
         
         this.decayReactions = g.getDecayReactions();
         bindingReactions = new BindingReactions(g);
@@ -723,11 +730,8 @@ public class MySystem {
         try{
             tempPart = partition[nx][ny][nz];
         } catch(ArrayIndexOutOfBoundsException e){
-            System.out.println("Site type: " + site.getType() + "Site ID: " + site.getID() + " Radius = " + site.getRadius());
-            // System.out.println("Pos = " + site.getPosition().toString() + ", Last Pos = " + site.getLastPosition().toString());
-            System.out.println("(nx,ny,nz) = (" + nx + ", " + ny + ", " + nz + ")");
-            e.printStackTrace(System.out);
-            System.exit(1);
+            throw new ArrayIndexOutOfBoundsException("partition index out of bounds at (nx,ny,nz) " +
+                    "= (" + nx + ", " + ny + ", " + nz + ")");
         }
         tempPart.addSite(site);
         site.setPartition(tempPart);
@@ -1048,6 +1052,7 @@ public class MySystem {
                 if(useOutputFile){
                     try(PrintWriter p = new PrintWriter(new FileWriter(g.getOutputFile(), true), true)){
                         p.println("Simulation " + percentComplete + "% complete. Elapsed time: " + IOHelp.formatTime(startTime, now));
+                        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(percentComplete/100.0));
                     } catch (IOException ioe){
                         ioe.printStackTrace(System.out);
                     }
@@ -1072,6 +1077,7 @@ public class MySystem {
         }catch (IOException e){
             e.printStackTrace(System.out);
         }
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(time));
         System.out.println("Simulation finished. Writing more data.");
         this.writeMoleculeIDs();
         this.writeSiteIDs();
@@ -1088,7 +1094,7 @@ public class MySystem {
         sitePropertyCounter.writeData(dataFolder);
 //        locationTracker.writeData(dataFolder);
         System.out.println("Finished writing data.");
-        
+        vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
         // </editor-fold>
     }
     

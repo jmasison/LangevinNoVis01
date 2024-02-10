@@ -339,8 +339,7 @@ public class Global {
         try{
             br = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e){
-            System.out.println("Error: The program could not find the specified file, " + filename + ", and will now abort.");
-            System.exit(1);
+            throw new RuntimeException("file " + filename + " not found");
         }
         
         Scanner sc = new Scanner(br);
