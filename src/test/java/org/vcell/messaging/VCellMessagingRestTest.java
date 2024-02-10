@@ -1,6 +1,5 @@
 package org.vcell.messaging;
 
-import com.google.gson.Gson;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -9,8 +8,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -75,41 +75,36 @@ public class VCellMessagingRestTest {
     }
 
     @Test
-    public void testMessagingConfig() {
+    public void testMessagingConfig() throws IOException {
         MessagingConfig config = new MessagingConfig(
                 "localhost",
                 8165,
                 "msg_user",
                 "msg_pswd",
                 "localhost",
-                "schaff",
+                "vcell_user",
                 "12334483837",
                 0,
                 0
         );
 
-        Gson gson = new Gson();
-        String json_formatted = """
-                {
-                  "broker_host": "localhost",
-                  "broker_port": 8165,
-                  "broker_username": "msg_user",
-                  "broker_password": "msg_pswd",
-                  "compute_hostname": "localhost",
-                  "vc_username": "schaff",
-                  "simKey": "12334483837",
-                  "taskID": 0,
-                  "jobIndex": 0
-                }
+        String properties_expected = """
+                broker_host=localhost
+                broker_port=8165
+                broker_username=msg_user
+                broker_password=msg_pswd
+                compute_hostname=localhost
+                vc_username=vcell_user
+                simKey=12334483837
+                taskID=0
+                jobIndex=0
                 """;
-        MessagingConfig config2 = gson.fromJson(json_formatted, MessagingConfig.class);
+
+        Properties props = new Properties();
+        props.load(new StringReader(properties_expected));
+        MessagingConfig config2 = new MessagingConfig(props);
 
         // test the parsed json is equal to the original config
         assertEquals(config, config2);
-
-        // test that round-tripping to json and back results in the same object
-        String generated_json = gson.toJson(config);
-        MessagingConfig reconstituted_config = gson.fromJson(generated_json, MessagingConfig.class);
-        assertEquals(config, reconstituted_config);
     }
 }

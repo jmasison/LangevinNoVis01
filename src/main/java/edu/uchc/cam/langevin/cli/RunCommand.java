@@ -1,6 +1,5 @@
 package edu.uchc.cam.langevin.cli;
 
-import com.google.gson.Gson;
 import edu.uchc.cam.langevin.langevinnovis01.Global;
 import edu.uchc.cam.langevin.langevinnovis01.MySystem;
 import org.vcell.messaging.*;
@@ -8,6 +7,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "simulate", description = "Run a Langevin simulation.")
@@ -22,20 +22,18 @@ public class RunCommand implements Callable<Integer> {
     private File logFile = null;
 
     private final String example_config = """
-                {
-                  "broker_host": "localhost",
-                  "broker_port": 8165,
-                  "broker_username": "msg_user",
-                  "broker_password": "msg_pswd",
-                  "compute_hostname": "localhost",
-                  "vc_username": "vcell_user",
-                  "simKey": "12334483837",
-                  "taskID": 0,
-                  "jobIndex": 0
-                }
+                broker_host=localhost
+                broker_port=8165
+                broker_username=msg_user
+                broker_password=msg_pswd
+                compute_hostname=localhost
+                vc_username=vcell_user
+                simKey=12334483837
+                taskID=0
+                jobIndex=0
                 """;
     @CommandLine.Option(names = {"--vc-send-status-config"}, required = false, type = File.class,
-                        description = "json status message config file as:\n\n" + example_config)
+                        description = "messaging property file:\n\n" + example_config)
     private File sendStatusConfig = null;
 
     @CommandLine.Option(names = {"--vc-print-status"}, required = false, type = Boolean.class, description = "print vcell status to stdout and stderr")
@@ -52,9 +50,10 @@ public class RunCommand implements Callable<Integer> {
             try {
                 // the messagingConfigFile is a json structure corresponding to a MessagingConfig object.
                 // create a MessagingConfig object by reading the messagingConfigFile
-                Gson gson = new Gson();
-                MessagingConfig messagingConfig = gson.fromJson(new FileReader(sendStatusConfig), MessagingConfig.class);
-                vcellMessaging = new VCellMessagingRest(messagingConfig);
+                Properties props = new Properties();
+                props.load(new FileReader(sendStatusConfig));
+                MessagingConfig config = new MessagingConfig(props);
+                vcellMessaging = new VCellMessagingRest(config);
             } catch (Exception e) {
                 e.printStackTrace();
                 return 1;
