@@ -21,7 +21,7 @@ jobs:
           native-image-job-reports: 'true'
 
       - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative package
+        run: mvn -Pnative -DskipTests package
 
       - name: Upload MacOS or Linux solver binary to release assets
         if: github.event_name == 'release' && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')

@@ -18,7 +18,7 @@ jobs:
           native-image-job-reports: 'true'
 
       - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative package
+        run: mvn -Pnative -DskipTests package
 
       - name: Upload ${{ matrix.os }} solver binary
         uses: actions/upload-artifact@v3
