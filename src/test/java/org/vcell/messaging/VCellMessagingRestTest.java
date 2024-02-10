@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.InetAddress;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -81,7 +82,7 @@ public class VCellMessagingRestTest {
                 8165,
                 "msg_user",
                 "msg_pswd",
-                "localhost",
+                InetAddress.getLocalHost().getHostName(),
                 "vcell_user",
                 "12334483837",
                 0,
@@ -93,12 +94,13 @@ public class VCellMessagingRestTest {
                 broker_port=8165
                 broker_username=msg_user
                 broker_password=msg_pswd
-                compute_hostname=localhost
                 vc_username=vcell_user
                 simKey=12334483837
                 taskID=0
                 jobIndex=0
                 """;
+        // note that compute_hostname in MessageConfig is computed dynamically
+        // from InetAddress.getLocalHost().getHostName()
 
         Properties props = new Properties();
         props.load(new StringReader(properties_expected));
