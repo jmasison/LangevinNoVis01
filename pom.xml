@@ -173,7 +173,7 @@
                         <configuration>
                             <fallback>false</fallback>
                             <buildArgs>
-                                <arg>-H:DashboardDump=fortune -H:+DashboardAll</arg>
+                                <arg>-H:ConfigurationFileDirectories=target\native\agent-output --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
                             </buildArgs>
 <!--                            <agent>-->
 <!--                                <enabled>true</enabled>-->
@@ -188,12 +188,12 @@
         </profile>
         <profile>
             <id>native-static</id>
-<!--            <activation>-->
-<!--                <os>-->
-<!--                    <family>unix</family>-->
-<!--                    <name>linux</name>-->
-<!--                </os>-->
-<!--            </activation>-->
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>linux</name>
+                </os>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -220,7 +220,7 @@
                         <configuration>
                             <fallback>false</fallback>
                             <buildArgs>
-                                <arg>--static --libc=musl -H:DashboardDump=fortune -H:+DashboardAll</arg>
+                                <arg>--static --libc=musl -H:ConfigurationFileDirectories=target\native\agent-output --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
                             </buildArgs>
 <!--                            <agent>-->
 <!--                                <enabled>true</enabled>-->

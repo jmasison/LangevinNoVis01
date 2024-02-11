@@ -31,11 +31,11 @@ jobs:
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
       - name: static build and test native solver - linux only  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative-static -DskipTests package
+        run: mvn -Pnative-static -DskipTests=false package
         if: matrix.os == 'ubuntu-latest'
 
       - name: non-static build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative -DskipTests package
+        run: mvn -Pnative -DskipTests=false package
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
       - name: Upload ${{ matrix.os }} solver binary
