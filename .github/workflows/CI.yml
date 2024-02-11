@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup graalvm for static build
+      - name: setup graalvm for static native build
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17.0.7'
@@ -30,13 +30,20 @@ jobs:
           native-image-job-reports: 'true'
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
-      - name: static build and test native solver - linux only  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative-static -DskipTests=false package
+      - name: java build and test
+        run: mvn test
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
+
+      - name: static native build without test - linux only
+        run: mvn -Pnative-static -DskipTests=true package
         if: matrix.os == 'ubuntu-latest'
 
-      - name: non-static build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative -DskipTests=false package
+      - name: non-static native build without test - macos or windows
+        run: mvn -Pnative -DskipTests=true package
         if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
+
+      - name: run native executable with --help option to verify build (zero return code)
+        run: ./target/langevin --help
 
       - name: Upload ${{ matrix.os }} solver binary
         uses: actions/upload-artifact@v4
