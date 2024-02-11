@@ -13,15 +13,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: graalvm/setup-graalvm@v1
+      - name: setup graalvm for static build
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          components: 'native-image'
+          native-image-musl: 'true'
+          native-image-job-reports: 'true'
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: setup graalvm for non-static build
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17.0.7'
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
-      - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+      - name: static build and test native solver - linux only  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
+        run: mvn -Pnative-static -DskipTests package
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: non-static build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
         run: mvn -Pnative -DskipTests package
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
       - name: Upload MacOS or Linux solver binary to release assets
         if: github.event_name == 'release' && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')
