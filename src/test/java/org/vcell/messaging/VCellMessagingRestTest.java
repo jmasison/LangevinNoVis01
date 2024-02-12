@@ -62,7 +62,7 @@ public class VCellMessagingRestTest {
                         "&SimKey=12334483837" +
                         "&TaskID=0" +
                         "&JobIndex=0" +
-                        "&WorkerEvent_Status=JOB_STARTING" +
+                        "&WorkerEvent_Status=999" +
                         "&WorkerEvent_StatusMsg=Starting+Job" +
                         "&WorkerEvent_Progress=0.0" +
                         "&WorkerEvent_TimePoint=0.0";
