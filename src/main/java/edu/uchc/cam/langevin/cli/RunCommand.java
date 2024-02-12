@@ -7,6 +7,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -44,7 +45,7 @@ public class RunCommand implements Callable<Integer> {
     public RunCommand() {
     }
 
-    public Integer call() {
+    public Integer call() throws IOException {
         Global g;
         MySystem sys;
         if (modelFile == null || !modelFile.exists()){

@@ -17,12 +17,14 @@ import edu.uchc.cam.langevin.object.*;
 import edu.uchc.cam.langevin.reaction.AllostericReactions;
 import edu.uchc.cam.langevin.reaction.BindingReactions;
 import edu.uchc.cam.langevin.reaction.TransitionReactions;
+import org.vcell.data.LangevinPostprocessor;
 import org.vcell.messaging.VCellMessaging;
 import org.vcell.messaging.WorkerEvent;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -990,7 +992,7 @@ public class MySystem {
      * simulation.                                                      *
     \********************************************************************/
     
-    public void runSystem(){
+    public void runSystem() throws IOException {
         // <editor-fold defaultstate="collapsed" desc="Method Code">  
         System.out.println("This stdout file is associated with run counter " + runCounter + ".");
         System.out.println("Simulation started.");
@@ -1077,7 +1079,6 @@ public class MySystem {
         }catch (IOException e){
             e.printStackTrace(System.out);
         }
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(time));
         System.out.println("Simulation finished. Writing more data.");
         this.writeMoleculeIDs();
         this.writeSiteIDs();
@@ -1094,6 +1095,14 @@ public class MySystem {
         sitePropertyCounter.writeData(dataFolder);
 //        locationTracker.writeData(dataFolder);
         System.out.println("Finished writing data.");
+        // postprocess data
+        // get file extension from inputFile
+        String idaFileExtension = ".ida";
+        String inputFileExtension = inputFile.getName().substring(inputFile.getName().lastIndexOf("."));
+        File idaFile = new File(inputFile.getParentFile(), inputFile.getName().replace(inputFileExtension, idaFileExtension));
+        LangevinPostprocessor.writeIdaFile(dataFolder.toPath(),idaFile.toPath());
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(time));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
         // </editor-fold>
     }
