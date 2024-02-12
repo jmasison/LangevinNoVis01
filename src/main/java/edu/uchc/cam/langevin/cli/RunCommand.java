@@ -38,12 +38,19 @@ public class RunCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"--vc-print-status"}, required = false, type = Boolean.class, description = "print vcell status to stdout and stderr")
     private boolean printStatus = false;
 
+    @CommandLine.Option(names = {"-tid"}, required = false, hidden = true, type = Integer.class, description = "task id supplied by vcell - ignored for now")
+    private Integer taskId_NOT_USED = null;
+
     public RunCommand() {
     }
 
     public Integer call() {
         Global g;
         MySystem sys;
+        if (modelFile == null || !modelFile.exists()){
+            System.err.println("Model file not found: " + modelFile);
+            return 1;
+        }
         VCellMessaging vcellMessaging = new VCellMessagingNoop();
         if (sendStatusConfig != null) {
             try {
