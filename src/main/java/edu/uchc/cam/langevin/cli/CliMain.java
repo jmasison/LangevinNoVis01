@@ -5,7 +5,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "langevin",
         mixinStandardHelpOptions = true,
-        version = "langevin 1.0",
+        versionProvider = Version.class,
         description = "Langevin solver and utilities.",
         subcommands = {
                 RunCommand.class

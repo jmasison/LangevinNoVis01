@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
-@CommandLine.Command(name = "simulate", description = "Run a Langevin simulation.")
+@CommandLine.Command(name = "simulate", description = "Run a Langevin simulation.", mixinStandardHelpOptions = true, versionProvider = Version.class, subcommands = {})
 public class RunCommand implements Callable<Integer> {
     @CommandLine.Parameters(description = "Langevin model file", index = "0", type = File.class)
     private File modelFile = null;
@@ -48,6 +48,7 @@ public class RunCommand implements Callable<Integer> {
     public Integer call() throws IOException {
         Global g;
         MySystem sys;
+        System.out.println("Version = "+Version.GIT_VERSION);
         if (modelFile == null || !modelFile.exists()){
             System.err.println("Model file not found: " + modelFile);
             return 1;

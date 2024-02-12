@@ -179,14 +179,8 @@
                         <configuration>
                             <fallback>false</fallback>
                             <buildArgs>
-                                <arg>-H:ConfigurationFileDirectories=target\native\agent-output --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
+                                <arg>--initialize-at-build-time=edu.uchc.cam.langevin.cli.Version --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
                             </buildArgs>
-<!--                            <agent>-->
-<!--                                <enabled>true</enabled>-->
-<!--                                <options>-->
-<!--                                    <option>experimental-class-loader-support</option>-->
-<!--                                </options>-->
-<!--                            </agent>-->
                         </configuration>
                     </plugin>
                 </plugins>
@@ -226,14 +220,8 @@
                         <configuration>
                             <fallback>false</fallback>
                             <buildArgs>
-                                <arg>--static --libc=musl -H:ConfigurationFileDirectories=target\native\agent-output --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
+                                <arg>--static --libc=musl --initialize-at-build-time=edu.uchc.cam.langevin.cli.Version --no-fallback -H:DashboardDump=fortune -H:+DashboardAll</arg>
                             </buildArgs>
-<!--                            <agent>-->
-<!--                                <enabled>true</enabled>-->
-<!--                                <options>-->
-<!--                                    <option>experimental-class-loader-support</option>-->
-<!--                                </options>-->
-<!--                            </agent>-->
                         </configuration>
                     </plugin>
                 </plugins>
