@@ -120,7 +120,7 @@ public class VCellMessagingRest implements VCellMessaging {
         ss_url.append(TASKID_PROPERTY).append("=").append(m_taskID).append("&");
         ss_url.append(JOBINDEX_PROPERTY).append("=").append(m_jobIndex).append("&");
 
-        ss_url.append(WORKEREVENT_STATUS).append("=").append(event.status()).append("&");
+        ss_url.append(WORKEREVENT_STATUS).append("=").append(event.status().status).append("&");
 
         String revisedMsg = event.eventMessage();
         if (revisedMsg != null && !revisedMsg.isEmpty()) {
