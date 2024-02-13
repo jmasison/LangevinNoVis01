@@ -11,17 +11,42 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: graalvm/setup-graalvm@v1
+      - name: setup graalvm for static native build
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm-community'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          components: 'native-image'
+          native-image-musl: 'true'
+          native-image-job-reports: 'true'
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: setup graalvm for non-static build
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17.0.7'
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
 
-      - name: build and test native solver  # https://graalvm.github.io/native-build-tools/latest/maven-plugin.html
-        run: mvn -Pnative package
+      - name: java build and test
+        run: mvn test
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
+
+      - name: static native build without test - linux only
+        run: mvn -Pnative-static -DskipTests=true package
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: non-static native build without test - macos or windows
+        run: mvn -Pnative -DskipTests=true package
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
+
+      - name: run native executable with --help option to verify build (zero return code)
+        run: ./target/langevin --help
 
       - name: Upload MacOS or Linux solver binary to release assets
         if: github.event_name == 'release' && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')
