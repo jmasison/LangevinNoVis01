@@ -1054,7 +1054,6 @@ public class MySystem {
                 if(useOutputFile){
                     try(PrintWriter p = new PrintWriter(new FileWriter(g.getOutputFile(), true), true)){
                         p.println("Simulation " + percentComplete + "% complete. Elapsed time: " + IOHelp.formatTime(startTime, now));
-                        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(percentComplete/100.0));
                     } catch (IOException ioe){
                         ioe.printStackTrace(System.out);
                     }
@@ -1064,7 +1063,8 @@ public class MySystem {
                 
                 nextRealTime += (totalTime/100.0);
             }
-            
+            vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(time/(totalTime + dt))); // progress message are throttled by vcellMessaging
+
             time += dt;
             update();
             if(relaxationSteps > 2){

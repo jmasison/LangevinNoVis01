@@ -38,20 +38,30 @@ public class VCellMessagingLocalTest {
     }
 
     @Test
-    public void testVCellMessagingLocal_normal() {
-        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr);
+    public void testVCellMessagingLocal_normal() throws InterruptedException {
+        long progressInterval_ms = 1;
+        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr, progressInterval_ms);
 
         // test sendWorkerEvent
         vcellMessaging.sendWorkerEvent(WorkerEvent.startingEvent("Starting Job"));
         vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(1.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.4));
+        Thread.sleep(2*progressInterval_ms);
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.5));
         vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(2.0));
+        Thread.sleep(2*progressInterval_ms);
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
 
-        vcellMessaging.close(); // flush the buffers
+        try {
+            Thread.sleep(2*progressInterval_ms);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        stderr.flush();
+        stdout.flush();
 
         // compare the stdout to the expected stdout
         String expected_stdout = """
@@ -73,8 +83,9 @@ public class VCellMessagingLocalTest {
     }
 
     @Test
-    public void testVCellMessagingLocal_failure() {
-        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr);
+    public void testVCellMessagingLocal_failure() throws InterruptedException {
+        long progressInterval_ms = 1;
+        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr, progressInterval_ms);
 
         // test sendWorkerEvent
         vcellMessaging.sendWorkerEvent(WorkerEvent.startingEvent("Starting Job"));
@@ -82,9 +93,13 @@ public class VCellMessagingLocalTest {
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(1.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.5));
+        Thread.sleep(2*progressInterval_ms);
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.6));
         vcellMessaging.sendWorkerEvent(WorkerEvent.failureEvent("Failure"));
 
-        vcellMessaging.close(); // flush the buffers
+
+        stderr.flush();
+        stdout.flush();
 
         // compare the stdout to the expected stdout
         String expected_stdout = """
@@ -92,7 +107,7 @@ public class VCellMessagingLocalTest {
                 [[[data:0.0]]]
                 [[[progress:0.0]]]
                 [[[data:1.0]]]
-                [[[progress:50.0]]]
+                [[[progress:60.0]]]
                 """;
         Assertions.assertEquals(expected_stdout, getStdout());
 

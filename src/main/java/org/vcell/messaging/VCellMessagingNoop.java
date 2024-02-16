@@ -5,7 +5,4 @@ public class VCellMessagingNoop implements VCellMessaging {
     public void sendWorkerEvent(WorkerEvent event) {
     }
 
-    @Override
-    public void close() {
-    }
 }
