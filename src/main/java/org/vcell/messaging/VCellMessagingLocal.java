@@ -29,7 +29,7 @@ public class VCellMessagingLocal implements VCellMessaging {
             case JOB_PROGRESS:
                 long timestamp_ms = System.currentTimeMillis();
                 if (timestamp_ms - last_progress_event_timestamp_ms > progress_event_interval_ms) {
-                    stdout.println("[[[progress:"+(event.progress() * 100.0)+"]]]");
+                    stdout.println("[[[progress:"+(event.progress() * 100.0)+"%]]]");
                     last_progress_event_timestamp_ms = timestamp_ms;
                 }
                 break;

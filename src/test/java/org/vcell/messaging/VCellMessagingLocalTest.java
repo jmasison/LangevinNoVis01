@@ -55,11 +55,6 @@ public class VCellMessagingLocalTest {
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
 
-        try {
-            Thread.sleep(2*progressInterval_ms);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         stderr.flush();
         stdout.flush();
 
@@ -67,11 +62,11 @@ public class VCellMessagingLocalTest {
         String expected_stdout = """
                 Starting Job
                 [[[data:0.0]]]
-                [[[progress:0.0]]]
+                [[[progress:0.0%]]]
                 [[[data:1.0]]]
-                [[[progress:50.0]]]
+                [[[progress:50.0%]]]
                 [[[data:2.0]]]
-                [[[progress:100.0]]]
+                [[[progress:100.0%]]]
                 """;
         Assertions.assertEquals(expected_stdout, getStdout());
 
@@ -97,7 +92,6 @@ public class VCellMessagingLocalTest {
         vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.6));
         vcellMessaging.sendWorkerEvent(WorkerEvent.failureEvent("Failure"));
 
-
         stderr.flush();
         stdout.flush();
 
@@ -105,9 +99,9 @@ public class VCellMessagingLocalTest {
         String expected_stdout = """
                 Starting Job
                 [[[data:0.0]]]
-                [[[progress:0.0]]]
+                [[[progress:0.0%]]]
                 [[[data:1.0]]]
-                [[[progress:60.0]]]
+                [[[progress:60.0%]]]
                 """;
         Assertions.assertEquals(expected_stdout, getStdout());
 
