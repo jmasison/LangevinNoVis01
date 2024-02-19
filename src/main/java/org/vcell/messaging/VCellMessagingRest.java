@@ -31,7 +31,7 @@ public class VCellMessagingRest implements VCellMessaging {
     private final static double WORKEREVENT_MESSAGE_MIN_TIME_SECONDS = 15.0;
 
     private long last_progress_event_timestamp_ms = 0;
-    private final static long PROGRESS_EVENT_INTERVAL_MS = 5000;
+    public final static long PROGRESS_EVENT_INTERVAL_MS = 5000;
 
 
     private final static int ONE_SECOND = 1000;
@@ -144,7 +144,7 @@ public class VCellMessagingRest implements VCellMessaging {
             ss_url.append(WORKEREVENT_STATUSMSG).append("=").append(revisedMsg).append("&");
         }
 
-        ss_url.append(WORKEREVENT_PROGRESS).append("=").append(event.progress()).append("&");
+        ss_url.append(WORKEREVENT_PROGRESS).append("=").append(event.progress_fraction()).append("&");
         ss_url.append(WORKEREVENT_TIMEPOINT).append("=").append(event.timepoint());
 
         System.out.println("URL: " + ss_url.toString());

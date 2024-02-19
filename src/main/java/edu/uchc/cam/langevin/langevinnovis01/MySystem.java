@@ -1063,7 +1063,7 @@ public class MySystem {
                 
                 nextRealTime += (totalTime/100.0);
             }
-            vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(time/(totalTime + dt))); // progress message are throttled by vcellMessaging
+            vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(time/(totalTime + dt), time)); // progress message are throttled by vcellMessaging
 
             time += dt;
             update();
@@ -1101,9 +1101,9 @@ public class MySystem {
         String inputFileExtension = inputFile.getName().substring(inputFile.getName().lastIndexOf("."));
         File idaFile = new File(inputFile.getParentFile(), inputFile.getName().replace(inputFileExtension, idaFileExtension));
         LangevinPostprocessor.writeIdaFile(dataFolder.toPath(),idaFile.toPath());
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(time));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(1.0, time));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0, time));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent(time));
         // </editor-fold>
     }
     
