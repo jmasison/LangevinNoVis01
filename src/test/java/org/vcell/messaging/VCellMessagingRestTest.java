@@ -17,23 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class VCellMessagingRestTest {
     private MockWebServer mockWebServer;
+    private VCellMessagingRest vCellMessagingRest;
 
     @BeforeEach
     public void setUp() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        mockWebServer.shutdown();
-    }
-
-    @Test
-    public void testSendWorkerEvent_starting() throws Exception {
-        // Arrange
-        mockWebServer.enqueue(new MockResponse().setBody("OK"));
-
         HttpUrl url = mockWebServer.url("/");
 
         MessagingConfig config = new MessagingConfig(
@@ -47,10 +36,20 @@ public class VCellMessagingRestTest {
                 0,
                 0
         );
+        vCellMessagingRest = new VCellMessagingRest(config);
+    }
 
-        VCellMessagingRest vCellMessagingRest = new VCellMessagingRest(config);
+    @AfterEach
+    public void tearDown() throws IOException {
+        mockWebServer.shutdown();
+    }
 
-        String expectedPath =
+    @Test
+    public void testSendWorkerEvent_starting() throws Exception {
+        // Arrange
+        mockWebServer.enqueue(new MockResponse().setBody("OK"));
+
+        String expectedPath_start =
                 "/api/message/workerEvent" +
                         "?type=queue" +
                         "&JMSPriority=5" +
@@ -71,7 +70,37 @@ public class VCellMessagingRestTest {
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("POST", request.getMethod());
-        assertEquals(expectedPath, request.getPath());
+        assertEquals(expectedPath_start, request.getPath());
+        assertEquals("", request.getBody().readUtf8());
+    }
+
+    @Test
+    public void testSendWorkerEvent_progress() throws Exception {
+        // Arrange
+        mockWebServer.enqueue(new MockResponse().setBody("OK"));
+
+        String expectedPath_progress =
+                "/api/message/workerEvent" +
+                        "?type=queue" +
+                        "&JMSPriority=5" +
+                        "&JMSTimeToLive=60000" +
+                        "&JMSDeliveryMode=nonpersistent" +
+                        "&MessageType=WorkerEvent" +
+                        "&UserName=vcell_user" +
+                        "&HostName=" + InetAddress.getLocalHost().getHostName() +
+                        "&SimKey=12334483837" +
+                        "&TaskID=0" +
+                        "&JobIndex=0" +
+                        "&WorkerEvent_Status=1001" +
+//                        "&WorkerEvent_StatusMsg=Starting+Job" +
+                        "&WorkerEvent_Progress=0.4" +
+                        "&WorkerEvent_TimePoint=2.0";
+
+        vCellMessagingRest.sendWorkerEvent(WorkerEvent.progressEvent(0.4, 2.0));
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("POST", request.getMethod());
+        assertEquals(expectedPath_progress, request.getPath());
         assertEquals("", request.getBody().readUtf8());
     }
 

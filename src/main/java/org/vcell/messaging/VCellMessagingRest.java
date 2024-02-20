@@ -1,9 +1,7 @@
 package org.vcell.messaging;
 
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -31,6 +29,10 @@ public class VCellMessagingRest implements VCellMessaging {
     private final static String WORKEREVENT_TIMEPOINT = "WorkerEvent_TimePoint";
     private final static String WORKEREVENT_STATUSMSG = "WorkerEvent_StatusMsg";
     private final static double WORKEREVENT_MESSAGE_MIN_TIME_SECONDS = 15.0;
+
+    private long last_progress_event_timestamp_ms = 0;
+    public final static long PROGRESS_EVENT_INTERVAL_MS = 5000;
+
 
     private final static int ONE_SECOND = 1000;
     private final static int ONE_MINUTE = 60 * ONE_SECOND;
@@ -80,6 +82,14 @@ public class VCellMessagingRest implements VCellMessaging {
             PROPERTIES="${PROPERTIES}&WorkerEvent_TimePoint=2.0&WorkerEvent_Progress=0.4&HostName=localhost"
             curl -XPOST "http://msg_user:msg_pswd@`hostname`:8165/api/message/workerEvent?type=queue&${PROPERTIES}"
         */
+        if (event.status() == WorkerStatus.JOB_PROGRESS) {
+            long timestamp_ms = System.currentTimeMillis();
+            if (timestamp_ms - last_progress_event_timestamp_ms < PROGRESS_EVENT_INTERVAL_MS) {
+                return; // skip progress events if too close together
+            }
+            last_progress_event_timestamp_ms = timestamp_ms;
+        }
+
         StringBuilder ss_url = new StringBuilder();
 
         // ss_url.append("http://" << m_smqusername << ":" << m_password << "@" << m_broker << "/api/message/workerEvent?type=queue&";
@@ -134,7 +144,7 @@ public class VCellMessagingRest implements VCellMessaging {
             ss_url.append(WORKEREVENT_STATUSMSG).append("=").append(revisedMsg).append("&");
         }
 
-        ss_url.append(WORKEREVENT_PROGRESS).append("=").append(event.progress()).append("&");
+        ss_url.append(WORKEREVENT_PROGRESS).append("=").append(event.progress_fraction()).append("&");
         ss_url.append(WORKEREVENT_TIMEPOINT).append("=").append(event.timepoint());
 
         System.out.println("URL: " + ss_url.toString());
@@ -151,11 +161,5 @@ public class VCellMessagingRest implements VCellMessaging {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    @Override
-    public void close() {
-        // not needed, HTTP is connectionless
     }
 }

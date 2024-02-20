@@ -38,30 +38,35 @@ public class VCellMessagingLocalTest {
     }
 
     @Test
-    public void testVCellMessagingLocal_normal() {
-        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr);
+    public void testVCellMessagingLocal_normal() throws InterruptedException {
+        long progressInterval_ms = 100;
+        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr, progressInterval_ms);
 
         // test sendWorkerEvent
         vcellMessaging.sendWorkerEvent(WorkerEvent.startingEvent("Starting Job"));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(1.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.5));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(2.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent());
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.0, 0.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0, 0.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.1, 0.5));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.1, 0.5));
+        Thread.sleep(2*progressInterval_ms);
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.5, 2.5));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.5,2.5));
+        Thread.sleep(2*progressInterval_ms);
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(1.0, 5.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.completedEvent(5.0));
 
-        vcellMessaging.close(); // flush the buffers
+        stderr.flush();
+        stdout.flush();
 
         // compare the stdout to the expected stdout
         String expected_stdout = """
                 Starting Job
                 [[[data:0.0]]]
-                [[[progress:0.0]]]
-                [[[data:1.0]]]
-                [[[progress:50.0]]]
-                [[[data:2.0]]]
-                [[[progress:100.0]]]
+                [[[progress:0.0%]]]
+                [[[data:0.5]]]
+                [[[progress:50.0%]]]
+                [[[data:2.5]]]
+                [[[progress:100.0%]]]
                 """;
         Assertions.assertEquals(expected_stdout, getStdout());
 
@@ -73,26 +78,30 @@ public class VCellMessagingLocalTest {
     }
 
     @Test
-    public void testVCellMessagingLocal_failure() {
-        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr);
+    public void testVCellMessagingLocal_failure() throws InterruptedException {
+        long progressInterval_ms = 100;
+        VCellMessagingLocal vcellMessaging = new VCellMessagingLocal(stdout, stderr, progressInterval_ms);
 
         // test sendWorkerEvent
         vcellMessaging.sendWorkerEvent(WorkerEvent.startingEvent("Starting Job"));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(1.0));
-        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.5));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.0, 0.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.0, 0.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.dataEvent(0.4, 2.0));
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.4, 2.0));
+        Thread.sleep(2*progressInterval_ms);
+        vcellMessaging.sendWorkerEvent(WorkerEvent.progressEvent(0.6, 3.0));
         vcellMessaging.sendWorkerEvent(WorkerEvent.failureEvent("Failure"));
 
-        vcellMessaging.close(); // flush the buffers
+        stderr.flush();
+        stdout.flush();
 
         // compare the stdout to the expected stdout
         String expected_stdout = """
                 Starting Job
                 [[[data:0.0]]]
-                [[[progress:0.0]]]
-                [[[data:1.0]]]
-                [[[progress:50.0]]]
+                [[[progress:0.0%]]]
+                [[[data:2.0]]]
+                [[[progress:60.0%]]]
                 """;
         Assertions.assertEquals(expected_stdout, getStdout());
 
