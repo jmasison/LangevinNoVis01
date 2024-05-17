@@ -91,10 +91,15 @@ public class Link {
         /** If spring is compressed (length < L0), then magForce > 0.  Since 
          * the normals point away from the center of the spring, the actual
          * forces are determined using magForce directly..
+         *
+         * EDIT: dan vasilescu
+         * force site now depends on the diffusion rate of the site
+         * springConstant has been reduced from pow(10,8) to 100 to compensate for the usage of D
          */
-        double magForce = springConstant*(L0-length);
-        site[0].incrementSpringForce(magForce*normal[0].x, magForce*normal[0].y, magForce*normal[0].z);
-        site[1].incrementSpringForce(magForce*normal[1].x, magForce*normal[1].y, magForce*normal[1].z);
+        double magForceSite0 = springConstant*site[0].getD()*(L0-length);
+        double magForceSite1 = springConstant*site[1].getD()*(L0-length);
+        site[0].incrementSpringForce(magForceSite0*normal[0].x, magForceSite0*normal[0].y, magForceSite0*normal[0].z);
+        site[1].incrementSpringForce(magForceSite1*normal[1].x, magForceSite1*normal[1].y, magForceSite1*normal[1].z);
     }
     
 }

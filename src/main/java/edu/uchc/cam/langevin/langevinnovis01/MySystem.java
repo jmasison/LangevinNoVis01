@@ -516,7 +516,7 @@ public class MySystem {
                             // System.out.println("Looking for reaction.");
                             if(bindingReactions.checkForReaction(key1, key2)){
                                 Bond newBond = new Bond(site, tempSite, 
-                                        100000000.0, bindingReactions.getOffProb(key1, key2), 
+                                        100.0, bindingReactions.getOffProb(key1, key2),
                                         bindingReactions.getName(key1, key2),
                                         bindingReactions.getBondLength(key1, key2));
                                 bonds.add(newBond);
