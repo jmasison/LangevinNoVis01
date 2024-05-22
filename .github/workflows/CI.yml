@@ -6,7 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest, macos-14]
+        os: [macos-13, windows-latest, ubuntu-latest, macos-14]
     steps:
       - uses: actions/checkout@v4
 
@@ -28,11 +28,11 @@ jobs:
           distribution: 'graalvm-community'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
-        if: matrix.os == 'macos-latest' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
 
       - name: java build and test
         run: mvn test
-        if: matrix.os == 'macos-latest' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
 
       - name: static native build without test - linux only
         run: mvn -Pnative-static -DskipTests=true package
@@ -40,7 +40,7 @@ jobs:
 
       - name: non-static native build without test - macos or windows
         run: mvn -Pnative -DskipTests=true package
-        if: matrix.os == 'macos-latest' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
+        if: matrix.os == 'macos-13' || matrix.os == 'macos-14' || matrix.os == 'windows-latest'
 
       - name: run native executable with --help option to verify build (zero return code)
         run: ./target/langevin --help
