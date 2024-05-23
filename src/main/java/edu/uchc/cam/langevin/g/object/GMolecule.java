@@ -277,7 +277,7 @@ public class GMolecule {
             Site s1 = mol.getSite(i1);
             Site s2 = mol.getSite(i2);
             Link link = new Link(s1, s2);
-            link.setSpringConstant(Math.pow(10,8));
+            link.setSpringConstant(100.0);  // was Math.pow(10,8), corrected for D
             mol.addLink(link);
         }
         return mol;
