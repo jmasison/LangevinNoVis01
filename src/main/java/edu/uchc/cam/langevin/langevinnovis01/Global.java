@@ -79,7 +79,8 @@ public class Global {
         
         systemTimes = new GSystemTimes();
         boxGeometry = new GBoxGeometry();
-        
+
+        String path = inFile.getAbsolutePath();
         defaultFolder = new File(inFile.getParent());
 
         inputFile = inFile;
