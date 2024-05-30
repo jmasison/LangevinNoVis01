@@ -20,6 +20,9 @@ import edu.uchc.cam.langevin.g.reaction.GAllostericReaction;
 import edu.uchc.cam.langevin.g.reaction.GBindingReaction;
 import edu.uchc.cam.langevin.g.reaction.GTransitionReaction;
 import edu.uchc.cam.langevin.g.reaction.GDecayReaction;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;
@@ -79,8 +82,10 @@ public class Global {
         
         systemTimes = new GSystemTimes();
         boxGeometry = new GBoxGeometry();
-        
-        defaultFolder = new File(inFile.getParent());
+
+        Path f2 = Paths.get(inFile.getAbsolutePath());
+        Path f3 = f2.getParent();
+        defaultFolder = f3.toFile();
 
         inputFile = inFile;
         outputFile = null;
