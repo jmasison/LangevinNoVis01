@@ -42,6 +42,11 @@ public class MySystem {
     private final ArrayList<Site> sites = new ArrayList<>();
     private final ArrayList<Link> links = new ArrayList<>();
     private final ArrayList<Bond> bonds = new ArrayList<>();
+
+    // In SpringSaLad the ratio k / BT = 100 nm−2 is the same for all bonds and links;
+    // this allows us to use time steps ~ 1-100 ns for biologically relevant diffusion coefficients
+    // (where B is the Boltzmann constant, T is an absolute temperature)
+    public final static int SpringConstant = 100;
     
     // To quickly add and remove molecules, it will help to have a hashmap which 
     // maps Gmolecule ids to an arraylist containing just unbound molecules of
@@ -516,7 +521,7 @@ public class MySystem {
                             // System.out.println("Looking for reaction.");
                             if(bindingReactions.checkForReaction(key1, key2)){
                                 Bond newBond = new Bond(site, tempSite, 
-                                        100.0, bindingReactions.getOffProb(key1, key2),
+                                        SpringConstant, bindingReactions.getOffProb(key1, key2),
                                         bindingReactions.getName(key1, key2),
                                         bindingReactions.getBondLength(key1, key2));
                                 bonds.add(newBond);

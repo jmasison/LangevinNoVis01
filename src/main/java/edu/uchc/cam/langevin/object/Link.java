@@ -94,7 +94,7 @@ public class Link {
          *
          * EDIT: dan vasilescu
          * force site now depends on the diffusion rate of the site
-         * springConstant has been reduced from pow(10,8) to 100 to compensate for the usage of D
+         * See Boris' comment on MySystem.SpringConstant
          */
         double magForceSite0 = springConstant*site[0].getD()*(L0-length);
         double magForceSite1 = springConstant*site[1].getD()*(L0-length);
